@@ -1,0 +1,7 @@
+mutation CreateBranch($repositoryId: ID!, $name: String!, $issueId: ID!, $oid: GitObjectID!) {
+    createLinkedBranch(input:  { repositoryId: $repositoryId, name: $name, issueId: $issueId, oid: $oid }) {
+        linkedBranch {
+            id
+        }
+    }
+}

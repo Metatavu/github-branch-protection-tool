@@ -1,0 +1,21 @@
+query RepositoryBranches($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) {
+    id
+    refs(refPrefix: "refs/heads/", first: 100) {
+      nodes {
+        name,
+        id,
+      }
+    }
+  }
+}
+
+query RepositoryBranchOid($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) {
+    ref(qualifiedName: "refs/heads/main") {
+      target {
+        oid
+      }
+    }
+  }
+}

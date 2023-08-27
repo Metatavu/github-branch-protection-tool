@@ -1,0 +1,76 @@
+fragment branchProtection on BranchProtectionRule {
+    allowsDeletions
+    allowsForcePushes
+    creator {
+        login
+    }
+    id
+    isAdminEnforced
+    requiredStatusCheckContexts
+    requiredApprovingReviewCount
+    requiresApprovingReviews
+    requiresCodeOwnerReviews
+    requiresStatusChecks
+    restrictsPushes
+    restrictsReviewDismissals
+    dismissesStaleReviews
+    requiresConversationResolution
+    pattern
+}
+
+query showBranchProtection($owner:String!, $repo:String!) {
+    repository(name: $repo, owner: $owner) {
+        id
+        name
+        branchProtectionRules(first: 10) {
+            totalCount
+            nodes {
+                ...branchProtection
+            }
+        }
+    }
+}
+
+mutation createBranchProtection($repositoryId:ID!, $branchPattern:String!) {
+    createBranchProtectionRule(input: {
+        allowsDeletions: false
+        allowsForcePushes:false
+        dismissesStaleReviews:false
+        isAdminEnforced:false
+        pattern: $branchPattern
+        repositoryId: $repositoryId
+        requiresApprovingReviews:true
+        requiredApprovingReviewCount:1
+        requiresCodeOwnerReviews:false
+        requiredStatusCheckContexts:["Cloudflare Pages"]
+        requiresStatusChecks:true
+        requiresConversationResolution: true
+        restrictsReviewDismissals:false
+    }) {
+        branchProtectionRule {
+            ...branchProtection
+        }
+    }
+}
+
+mutation updateBranchProtection($ruleId:ID!, $branchPattern:String!) {
+    updateBranchProtectionRule(input: {
+        branchProtectionRuleId: $ruleId
+        allowsDeletions: false
+        allowsForcePushes:false
+        dismissesStaleReviews:false
+        isAdminEnforced:false
+        pattern: $branchPattern
+        requiresApprovingReviews:true
+        requiredApprovingReviewCount:1
+        requiresCodeOwnerReviews:false
+        requiredStatusCheckContexts:["Cloudflare Pages"]
+        requiresStatusChecks:true
+        requiresConversationResolution: true
+        restrictsReviewDismissals:false
+    }) {
+        branchProtectionRule {
+            ...branchProtection
+        }
+    }
+}

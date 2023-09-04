@@ -15,7 +15,12 @@ fragment branchProtection on BranchProtectionRule {
     restrictsReviewDismissals
     dismissesStaleReviews
     requiresConversationResolution
+    lockBranch
+    requiresDeployments
+    requiresLinearHistory
+    requiresCommitSignatures
     pattern
+
 }
 
 query showBranchProtection($owner:String!, $repo:String!) {
@@ -31,7 +36,7 @@ query showBranchProtection($owner:String!, $repo:String!) {
     }
 }
 
-mutation createBranchProtection($repositoryId:ID!, $branchPattern:String!) {
+mutation createBranchProtection($repositoryId:ID!, $branchPattern:String!, $statusCheck:Boolean!) {
     createBranchProtectionRule(input: {
         allowsDeletions: false
         allowsForcePushes:false
@@ -42,10 +47,13 @@ mutation createBranchProtection($repositoryId:ID!, $branchPattern:String!) {
         requiresApprovingReviews:true
         requiredApprovingReviewCount:1
         requiresCodeOwnerReviews:false
-        requiredStatusCheckContexts:["Cloudflare Pages"]
-        requiresStatusChecks:true
+        requiresStatusChecks:$statusCheck
         requiresConversationResolution: true
         restrictsReviewDismissals:false
+        lockBranch:false
+        requiresDeployments:false
+        requiresLinearHistory:false
+        requiresCommitSignatures:false
     }) {
         branchProtectionRule {
             ...branchProtection
@@ -53,7 +61,7 @@ mutation createBranchProtection($repositoryId:ID!, $branchPattern:String!) {
     }
 }
 
-mutation updateBranchProtection($ruleId:ID!, $branchPattern:String!) {
+mutation updateBranchProtection($ruleId:ID!, $branchPattern:String!, $statusCheck:Boolean!) {
     updateBranchProtectionRule(input: {
         branchProtectionRuleId: $ruleId
         allowsDeletions: false
@@ -64,10 +72,13 @@ mutation updateBranchProtection($ruleId:ID!, $branchPattern:String!) {
         requiresApprovingReviews:true
         requiredApprovingReviewCount:1
         requiresCodeOwnerReviews:false
-        requiredStatusCheckContexts:["Cloudflare Pages"]
-        requiresStatusChecks:true
+        requiresStatusChecks:$statusCheck
         requiresConversationResolution: true
         restrictsReviewDismissals:false
+        lockBranch:false
+        requiresDeployments:false
+        requiresLinearHistory:false
+        requiresCommitSignatures:false
     }) {
         branchProtectionRule {
             ...branchProtection

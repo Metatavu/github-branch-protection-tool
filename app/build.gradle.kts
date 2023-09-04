@@ -45,7 +45,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass.set("branch.protection.tool.AppKt")
+    mainClass.set("branch.protection.tool.MainKt")
 }
 
 tasks.named<Test>("test") {
@@ -59,4 +59,8 @@ apollo {
         packageName.set("com.repository.standardization.tool")
     }
     generateKotlinModels.set(true)
+}
+
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
 }

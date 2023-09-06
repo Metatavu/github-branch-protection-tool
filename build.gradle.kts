@@ -47,3 +47,7 @@ apollo {
     }
     generateKotlinModels.set(true)
 }
+
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}

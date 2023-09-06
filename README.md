@@ -17,6 +17,6 @@ and run it
 ./gradlew run
 ```
 
-You will have to give your personal access token as TOKEN and owner of the repository you wish to check as OWNER as environment variables.
+You will have to give your personal access token as TOKEN and owner of the repository you wish to check as OWNER in environment variables.
 
-This tool lack ability to check or set branch protection rules status checks. Please set these manually.
+This tool lack ability to check or set branch protection rules status checks. Please set these manually

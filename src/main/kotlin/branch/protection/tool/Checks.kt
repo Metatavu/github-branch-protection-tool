@@ -59,7 +59,7 @@ class Checks {
                             oid = oid.data!!.repository!!.ref!!.target!!.oid
                         )
                     ).execute()
-                    println("main branch created")
+                    println("$branch branch created")
 
                     apolloClient.mutation(
                         CloseIssueMutation(
@@ -68,7 +68,7 @@ class Checks {
                     )
                     break
                 } else if (input == "n" || input == "no") {
-                    println("You chose to not to.")
+                    println("You chose not to create $branch branch.")
                     break
                 } else {
                     println("Invalid input.")
@@ -118,7 +118,7 @@ class Checks {
                     println("$branch branch protection created")
                     break
                 } else if (input == "n" || input == "no") {
-                    println("You chose to not to.")
+                    println("You chose not to create branch protection rule for $branch branch.")
                     break
                 } else {
                     println("Invalid input.")
@@ -154,7 +154,7 @@ class Checks {
                     println("$branch branch protection updated")
                     break
                 } else if (input == "n" || input == "no") {
-                    println("You chose to not to.")
+                    println("You chose not to update branch protection rule for $branch branch.")
                     break
                 } else {
                     println("Invalid input.")

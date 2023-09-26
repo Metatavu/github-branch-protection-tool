@@ -1,3 +1,2 @@
 
-rootProject.name = "testi"
-
+rootProject.name = "branch-protection-tool"

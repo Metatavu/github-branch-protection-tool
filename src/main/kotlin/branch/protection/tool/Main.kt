@@ -1,6 +1,6 @@
 package branch.protection.tool
 
-import com.repository.standardization.tool.*
+import com.branch.protection.tool.*
 import io.github.cdimascio.dotenv.dotenv
 import java.util.*
 import kotlin.system.exitProcess
@@ -13,6 +13,7 @@ suspend fun main() {
     val dotenv = dotenv()
     val owner = dotenv["OWNER"]
     val apolloClient = Clients().apolloClient
+    val check = Checks()
 
     do {
         println("Repository name: ")
@@ -23,39 +24,68 @@ suspend fun main() {
 
         if (repositoryId !== null) {
             val main = repository.data?.repository?.refs?.nodes?.find { repo -> repo?.name == "main" }
+            val master = repository.data?.repository?.refs?.nodes?.find { repo -> repo?.name == "master" }
             val development = repository.data?.repository?.refs?.nodes?.find { repo -> repo?.name == "develop" }
             val rules = apolloClient.query(ShowBranchProtectionQuery(owner = owner, repo = repositoryName)).execute()
             val mainRule = rules.data?.repository?.branchProtectionRules?.nodes?.find { rule -> rule?.branchProtection?.pattern == "main" }
+            val masterRule = rules.data?.repository?.branchProtectionRules?.nodes?.find { rule -> rule?.branchProtection?.pattern == "master" }
             val developRule = rules.data?.repository?.branchProtectionRules?.nodes?.find { rule -> rule?.branchProtection?.pattern == "develop" }
 
-            Checks().checkBranch(
-                repositoryName = repositoryName,
-                repositoryId = repositoryId,
-                branchNode = main,
-                branch = "main"
-            )
+            var oidTarget: String
 
-            Checks().checkBranchProtection(
-                repositoryId = repositoryId,
-                branch = "main",
-                rule = mainRule
-            )
+            /**
+             * Check master or main branch and rules
+             */
+            if (master != null) {
+                check.checkBranch(
+                    repositoryName = repositoryName,
+                    repositoryId = repositoryId,
+                    branchNode = master,
+                    branch = "master"
 
-            Checks().checkBranch(
+                )
+
+                check.checkBranchProtection(
+                    repositoryId = repositoryId,
+                    branch = "master",
+                    rule = masterRule
+                )
+                oidTarget = "master"
+            } else {
+                check.checkBranch(
+                    repositoryName = repositoryName,
+                    repositoryId = repositoryId,
+                    branchNode = main,
+                    branch = "main"
+                )
+
+                check.checkBranchProtection(
+                    repositoryId = repositoryId,
+                    branch = "main",
+                    rule = mainRule
+                )
+                oidTarget = "main"
+            }
+
+            /**
+             * Check develop branch and rules
+             */
+            check.checkBranch(
                 repositoryName = repositoryName,
                 repositoryId = repositoryId,
                 branchNode = development,
-                branch = "develop"
+                branch = "develop",
+                oidTarget = oidTarget
             )
 
-            Checks().checkBranchProtection(
+            check.checkBranchProtection(
                 repositoryId = repositoryId,
                 branch = "develop",
                 rule = developRule
             )
             println("!!! This tool can not check branch protection rules status checks. Please check these at: https://github.com/$owner/$repositoryName/settings/branches")
 
-        }else { println("invalid info") }
+        }else { println("could not find repository $repositoryName with owner $owner") }
 
         print("Do you wish to check another repository? (y/n): ")
 
@@ -71,7 +101,6 @@ suspend fun main() {
             }
         }
     } while (true)
-
 }
 
 

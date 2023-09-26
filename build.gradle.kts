@@ -36,14 +36,13 @@ application {
 }
 
 java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 apollo {
     service("service") {
-        packageName.set("com.repository.standardization.tool")
+        packageName.set("com.branch.protection.tool")
     }
     generateKotlinModels.set(true)
 }

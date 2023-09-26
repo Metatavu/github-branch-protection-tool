@@ -1,6 +1,6 @@
 package branch.protection.tool
 
-import com.repository.standardization.tool.*
+import com.branch.protection.tool.*
 import io.github.cdimascio.dotenv.dotenv
 import java.util.*
 
@@ -22,57 +22,63 @@ class Checks {
      * @param repositoryId repository id
      * @param branchNode branch query node
      * @param branch branch name
+     * @param oidTarget target branches name
      */
     suspend fun checkBranch(
         repositoryName: String,
         repositoryId: String,
         branchNode: RepositoryBranchesQuery.Node?,
-        branch: String
+        branch: String,
+        oidTarget: String? = null
     ) {
         if (branchNode == null) {
-
             println("$branch branch is missing")
-            println("Do you wish to add a $branch branch? (y/n):")
-            while (true) {
-                val input = readln().trim().lowercase(Locale.getDefault())
-                if (input == "y" || input == "yes") {
-                    val oid = apolloClient.query(
-                        RepositoryBranchOidQuery(
-                            owner = owner,
-                            name = repositoryName
-                        )
-                    ).execute()
+            if (branch != "main" && branch != "master") {
+                println("Do you wish to add a $branch branch? (y/n):")
+                while (true) {
+                    val input = readln().trim().lowercase(Locale.getDefault())
+                    if (input == "y" || input == "yes") {
+                        val oid = apolloClient.query(
+                            RepositoryBranchOidQuery(
+                                owner = owner,
+                                name = repositoryName,
+                                branch = "refs/heads/$oidTarget"
+                            )
+                        ).execute()
 
-                    val issue = apolloClient.mutation(
-                        CreateIssueMutation(
-                            repositoryId = repositoryId,
-                            title = "Create $branch branch",
-                            body = "Automatic creating of $branch branch"
-                        )
-                    ).execute()
+                        val issue = apolloClient.mutation(
+                            CreateIssueMutation(
+                                repositoryId = repositoryId,
+                                title = "Create $branch branch",
+                                body = "Automatic creating of $branch branch"
+                            )
+                        ).execute()
 
-                    apolloClient.mutation(
-                        CreateBranchMutation(
-                            repositoryId = repositoryId,
-                            issueId = issue.data!!.createIssue!!.issue!!.id,
-                            name = branch,
-                            oid = oid.data!!.repository!!.ref!!.target!!.oid
-                        )
-                    ).execute()
-                    println("$branch branch created")
+                        apolloClient.mutation(
+                            CreateBranchMutation(
+                                repositoryId = repositoryId,
+                                issueId = issue.data!!.createIssue!!.issue!!.id,
+                                name = branch,
+                                oid = oid.data!!.repository!!.ref!!.target!!.oid
+                            )
+                        ).execute()
+                        println("$branch branch created")
 
-                    apolloClient.mutation(
-                        CloseIssueMutation(
-                            issueId = issue.data!!.createIssue!!.issue!!.id
-                        )
-                    )
-                    break
-                } else if (input == "n" || input == "no") {
-                    println("You chose not to create $branch branch.")
-                    break
-                } else {
-                    println("Invalid input.")
+                        apolloClient.mutation(
+                            CloseIssueMutation(
+                                issueId = issue.data!!.createIssue!!.issue!!.id
+                            )
+                        ).execute()
+                        break
+                    } else if (input == "n" || input == "no") {
+                        println("You chose not to create $branch branch.")
+                        break
+                    } else {
+                        println("Invalid input.")
+                    }
                 }
+            } else {
+                println("!!! Please set default branch to main or master at: https://github.com/$owner/$repositoryName/branches before you continue")
             }
         } else {
             println("$branch branch found")
@@ -98,7 +104,7 @@ class Checks {
                 val input = readln().trim().lowercase(Locale.getDefault())
                 if (input == "y" || input == "yes") {
 
-                    if (branch == "main") {
+                    if (branch == "main" || branch == "master") {
                         apolloClient.mutation(
                             CreateBranchProtectionMutation(
                                 repositoryId = repositoryId,

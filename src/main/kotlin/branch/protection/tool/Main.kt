@@ -13,7 +13,7 @@ suspend fun main() {
     val dotenv = dotenv()
     val owner = dotenv["OWNER"]
     val apolloClient = Clients().apolloClient
-    val check = Checks()
+    val check = Checks(owner = owner, apolloClient = apolloClient)
 
     do {
         println("Repository name: ")
@@ -42,7 +42,6 @@ suspend fun main() {
                     repositoryId = repositoryId,
                     branchNode = master,
                     branch = "master"
-
                 )
 
                 check.checkBranchProtection(
@@ -70,7 +69,7 @@ suspend fun main() {
             /**
              * Check develop branch and rules
              */
-            check.checkBranch(
+            val checkDevelop = check.checkBranch(
                 repositoryName = repositoryName,
                 repositoryId = repositoryId,
                 branchNode = development,
@@ -78,13 +77,14 @@ suspend fun main() {
                 oidTarget = oidTarget
             )
 
-            check.checkBranchProtection(
-                repositoryId = repositoryId,
-                branch = "develop",
-                rule = developRule
-            )
-            println("!!! This tool can not check branch protection rules status checks. Please check these at: https://github.com/$owner/$repositoryName/settings/branches")
-
+            if (checkDevelop) {
+                check.checkBranchProtection(
+                    repositoryId = repositoryId,
+                    branch = "develop",
+                    rule = developRule
+                )
+                println("!!! This tool can not check branch protection rules status checks. Please check these at: https://github.com/$owner/$repositoryName/settings/branches")
+            }
         }else { println("could not find repository $repositoryName with owner $owner") }
 
         print("Do you wish to check another repository? (y/n): ")

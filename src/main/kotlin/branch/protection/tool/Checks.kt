@@ -1,20 +1,13 @@
 package branch.protection.tool
 
+import com.apollographql.apollo3.ApolloClient
 import com.branch.protection.tool.*
-import io.github.cdimascio.dotenv.dotenv
 import java.util.*
 
 /**
  * Class for checks
  */
-class Checks {
-
-    private val dotenv = dotenv()
-
-    private val apolloClient = Clients().apolloClient
-
-    private val owner: String = dotenv["OWNER"]
-
+class Checks ( private val owner: String,  private val apolloClient: ApolloClient) {
     /**
      * Function to check if a branch exists and create it if necessary
      *
@@ -24,13 +17,15 @@ class Checks {
      * @param branch branch name
      * @param oidTarget target branches name
      */
+
+
     suspend fun checkBranch(
         repositoryName: String,
         repositoryId: String,
         branchNode: RepositoryBranchesQuery.Node?,
         branch: String,
         oidTarget: String? = null
-    ) {
+    ): Boolean {
         if (branchNode == null) {
             println("$branch branch is missing")
             if (branch != "main" && branch != "master") {
@@ -69,19 +64,21 @@ class Checks {
                                 issueId = issue.data!!.createIssue!!.issue!!.id
                             )
                         ).execute()
-                        break
+                        return true
                     } else if (input == "n" || input == "no") {
                         println("You chose not to create $branch branch.")
-                        break
+                        return false
                     } else {
                         println("Invalid input.")
                     }
                 }
             } else {
                 println("!!! Please set default branch to main or master at: https://github.com/$owner/$repositoryName/branches before you continue")
+                return false
             }
         } else {
             println("$branch branch found")
+            return true
         }
     }
 

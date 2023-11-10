@@ -18,7 +18,6 @@ suspend fun main() {
     do {
         println("Repository name: ")
         val repositoryName = readln()
-
         val repository = apolloClient.query(RepositoryBranchesQuery(owner = owner, name = repositoryName)).execute()
         val repositoryId = repository.data?.repository?.id
 
@@ -83,11 +82,12 @@ suspend fun main() {
                     branch = "develop",
                     rule = developRule
                 )
-                println("!!! This tool can not check branch protection rules status checks. Please check these at: https://github.com/$owner/$repositoryName/settings/branches")
             }
+            println("!!! This tool can not check branch protection rules status checks. Please check these at: https://github.com/$owner/$repositoryName/settings/branches")
+
         }else { println("could not find repository $repositoryName with owner $owner") }
 
-        print("Do you wish to check another repository? (y/n): ")
+        println("Do you wish to check another repository? (y/n): ")
 
         while (true) {
             val input = readln().trim().lowercase(Locale.getDefault())

@@ -18,7 +18,6 @@ class Checks ( private val owner: String,  private val apolloClient: ApolloClien
      * @param oidTarget target branches name
      */
 
-
     suspend fun checkBranch(
         repositoryName: String,
         repositoryId: String,

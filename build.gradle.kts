@@ -14,12 +14,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-
     implementation("com.apollographql.apollo3:apollo-runtime:3.8.2")
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
-
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 }
 
